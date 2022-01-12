@@ -1,0 +1,4 @@
+[submodule "LiteNetLib"]
+	path = LiteNetLib
+	url = https://github.com/RevenantX/LiteNetLib
+	branch = 0.9
