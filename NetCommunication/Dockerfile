@@ -21,3 +21,4 @@ WORKDIR /app
 COPY --from=build /app ./
 ENTRYPOINT ["./NetCommunication"]
 EXPOSE 9050
+EXPOSE 8080

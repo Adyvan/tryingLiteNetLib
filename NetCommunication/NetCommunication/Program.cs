@@ -1,4 +1,8 @@
 ﻿
+using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
 using LiteNetLib;
 using LiteNetLib.Utils;
 
@@ -6,8 +10,12 @@ namespace ServerApp
 {
     public class App
     {
+        public static TcpListener Listener { get; private set; }
+
         public static void Main(params string[] input)
         {
+            using var http = RunHttp(8080);
+
             EventBasedNetListener listener = new EventBasedNetListener();
             NetManager server = new NetManager(listener);
             server.Start(9050 /* port */);
@@ -35,6 +43,7 @@ namespace ServerApp
                 server.PollEvents();
                 Thread.Sleep(15);
             }
+            http.Stop();
             server.Stop();
         }
 
@@ -42,6 +51,28 @@ namespace ServerApp
         {
             Console.WriteLine($"We got mess from {peer.EndPoint}:'{reader.GetString(100)}'  ({deliveryMethod})");
             reader.Recycle();
+        }
+
+        private static HttpListener RunHttp(int port)
+        {
+            var listener = new HttpListener();
+            listener.Prefixes.Add($"http://*:{port}/");
+            listener.Start();
+
+
+            Thread thread = new Thread(() => {
+                while (true)
+                {
+                    HttpListenerContext context = listener.GetContext();
+                    HttpListenerRequest request = context.Request;
+                    context.Response.StatusCode = (int) HttpStatusCode.OK;
+                    context.Response.Close(System.Text.Encoding.UTF8.GetBytes("{status:\"ok\"}"),false);
+                }
+            });
+
+            thread.Start();
+
+            return listener;
         }
     }
 
