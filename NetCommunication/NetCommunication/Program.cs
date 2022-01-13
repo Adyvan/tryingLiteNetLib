@@ -1,8 +1,5 @@
-﻿
-using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using LiteNetLib;
 using LiteNetLib.Utils;
 
@@ -38,7 +35,7 @@ namespace ServerApp
 
             listener.NetworkReceiveEvent += Listener_NetworkReceiveEvent;
 
-            while (!Console.KeyAvailable)
+            while (true)
             {
                 server.PollEvents();
                 Thread.Sleep(15);
@@ -75,6 +72,5 @@ namespace ServerApp
             return listener;
         }
     }
-
 }
 
