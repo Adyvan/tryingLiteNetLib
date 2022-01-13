@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerApp", "NetCommunicati
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LiteNetLib", "..\LiteNetLib\LiteNetLib\LiteNetLib.csproj", "{59F4307B-AEE0-466F-AE60-C238FFA23C51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientApp", "ClientApp\ClientApp.csproj", "{C6DCC2D0-C5B0-4D58-A35C-B4092CCEA02E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientApp", "ClientApp\ClientApp.csproj", "{C6DCC2D0-C5B0-4D58-A35C-B4092CCEA02E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
