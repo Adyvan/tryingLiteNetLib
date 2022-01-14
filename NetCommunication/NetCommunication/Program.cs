@@ -7,8 +7,8 @@ namespace ServerApp
 {
     public class App
     {
-        const int Port = 9050;
-        //const int Port = 9051;
+        const int Port_Docker = 9050;
+        const int Port_Test = 9051;
         public class TargetPeer
         {
             public bool All { get; set; }
@@ -31,7 +31,10 @@ namespace ServerApp
 
             EventBasedNetListener listener = new EventBasedNetListener();
             NetManager server = new NetManager(listener);
-            server.Start(Port /* port */);
+            int port = OperatingSystem.IsWindows() ? Port_Test : Port_Docker;
+            server.Start( port /* port */);
+
+            Console.WriteLine($"server start port:{port}");
 
             listener.ConnectionRequestEvent += request =>
             {
@@ -43,13 +46,23 @@ namespace ServerApp
 
             listener.PeerConnectedEvent += peer =>
             {
-                Console.WriteLine("We got connection: {0}", peer.EndPoint); // Show peer ip
+                Console.WriteLine("PeerConnected: {0}", peer.EndPoint); // Show peer ip
                 NetDataWriter writer = new NetDataWriter();                 // Create writer class
                 writer.Put("Hello client!");                                // Put some string
                 peer.Send(writer, DeliveryMethod.ReliableOrdered);          // Send with reliability
             };
 
+            listener.PeerDisconnectedEvent += Listener_PeerDisconnectedEvent;
+
             listener.NetworkReceiveEvent += Listener_NetworkReceiveEvent;
+            listener.NetworkLatencyUpdateEvent += Listener_NetworkLatencyUpdateEvent;
+
+            listener.PeerConnectedEvent += Listener_PeerConnectedEvent;
+            listener.NetworkErrorEvent += Listener_NetworkErrorEvent;
+            listener.NetworkReceiveUnconnectedEvent += Listener_NetworkReceiveUnconnectedEvent;
+            listener.DeliveryEvent += Listener_DeliveryEvent;
+            listener.NtpResponseEvent += Listener_NtpResponseEvent;
+
 
             while (true)
             {
@@ -61,6 +74,45 @@ namespace ServerApp
             //http.Stop();
             server.Stop();
         }
+
+        private static void Listener_NtpResponseEvent(NtpPacket packet)
+        {
+            Console.WriteLine($"NtpResponse {packet}");
+        }
+
+        private static void Listener_DeliveryEvent(NetPeer peer, object userData)
+        {
+            Console.WriteLine($"Delivery {peer}:{userData}");
+        }
+
+        private static void Listener_NetworkReceiveUnconnectedEvent(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+        {
+            var mess = reader.GetString(100);
+            reader.Recycle();
+
+            Console.WriteLine($"NetworkError {remoteEndPoint}:'{mess}':{messageType}");
+        }
+
+        private static void Listener_NetworkErrorEvent(IPEndPoint endPoint, SocketError socketError)
+        {
+            Console.WriteLine($"NetworkError {endPoint}:{socketError}");
+        }
+
+        private static void Listener_PeerConnectedEvent(NetPeer peer)
+        {
+            Console.WriteLine($"PeerConnected {peer}");
+        }
+
+        private static void Listener_NetworkLatencyUpdateEvent(NetPeer peer, int latency)
+        {
+            Console.WriteLine($"LatencyUpdate {peer}: ({latency} ms)");
+        }
+
+        private static void Listener_PeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectInfo)
+        {
+            Console.WriteLine($"Disconnected {peer}");
+        }
+
         public static void SendDataIfNeeded(NetManager server)
         {
             Tuple<string, TargetPeer> mess = null;
