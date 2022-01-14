@@ -7,15 +7,31 @@ namespace ServerApp
 {
     public class App
     {
+        const int Port = 9050;
+        //const int Port = 9051;
+        public class TargetPeer
+        {
+            public bool All { get; set; }
+            public NetPeer targetPeer { get; set; }
+            public NetPeer sourcePeer { get; set; }
+
+            public static TargetPeer ToAll(NetPeer source)
+            {
+                return new TargetPeer() { All = true, sourcePeer = source };
+            }
+        }
+        public static Queue<Tuple<string, TargetPeer>> messages = new Queue<Tuple<string, TargetPeer>>();
+
         public static TcpListener Listener { get; private set; }
 
         public static void Main(params string[] input)
         {
-            using var http = RunHttp(8080);
+            //for health check
+            //using var http = RunHttp(8080);
 
             EventBasedNetListener listener = new EventBasedNetListener();
             NetManager server = new NetManager(listener);
-            server.Start(9050 /* port */);
+            server.Start(Port /* port */);
 
             listener.ConnectionRequestEvent += request =>
             {
@@ -30,7 +46,7 @@ namespace ServerApp
                 Console.WriteLine("We got connection: {0}", peer.EndPoint); // Show peer ip
                 NetDataWriter writer = new NetDataWriter();                 // Create writer class
                 writer.Put("Hello client!");                                // Put some string
-                peer.Send(writer, DeliveryMethod.ReliableOrdered);             // Send with reliability
+                peer.Send(writer, DeliveryMethod.ReliableOrdered);          // Send with reliability
             };
 
             listener.NetworkReceiveEvent += Listener_NetworkReceiveEvent;
@@ -38,15 +54,44 @@ namespace ServerApp
             while (true)
             {
                 server.PollEvents();
+                SendDataIfNeeded(server);
                 Thread.Sleep(15);
+                
             }
-            http.Stop();
+            //http.Stop();
             server.Stop();
+        }
+        public static void SendDataIfNeeded(NetManager server)
+        {
+            Tuple<string, TargetPeer> mess = null;
+            while (messages.TryDequeue(out mess))
+            {
+                var (data, target) = mess;
+                if(target.All)
+                {
+                    foreach(var peer in server.ConnectedPeerList)
+                    {
+                        if(peer.ConnectionState == ConnectionState.Connected && !peer.Equals(target.sourcePeer))
+                        {
+                            SendDataToPeer(peer, data);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void SendDataToPeer(NetPeer peer, string data)
+        {
+            NetDataWriter writer = new NetDataWriter();
+            writer.Put(data);
+            peer.Send(writer, DeliveryMethod.ReliableOrdered);
         }
 
         private static void Listener_NetworkReceiveEvent(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
         {
-            Console.WriteLine($"We got mess from {peer.EndPoint}:'{reader.GetString(100)}'  ({deliveryMethod})");
+            var mess = reader.GetString(100);
+            messages.Enqueue(new Tuple<string, TargetPeer>(mess, TargetPeer.ToAll(peer)));
+            Console.WriteLine($"We got mess from {peer.EndPoint}:'{mess}'  ({deliveryMethod})");
             reader.Recycle();
         }
 
@@ -55,7 +100,6 @@ namespace ServerApp
             var listener = new HttpListener();
             listener.Prefixes.Add($"http://*:{port}/");
             listener.Start();
-
 
             Thread thread = new Thread(() => {
                 while (true)
