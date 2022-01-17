@@ -9,6 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LiteNetLib", "..\LiteNetLib
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientApp", "ClientApp\ClientApp.csproj", "{C6DCC2D0-C5B0-4D58-A35C-B4092CCEA02E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetPackets", "NetPackets\NetPackets.csproj", "{91902AE8-EBF2-451C-946B-BB68E63EC0C2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6A79922C-400A-4116-B6AB-D3870F84E46F}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +34,10 @@ Global
 		{C6DCC2D0-C5B0-4D58-A35C-B4092CCEA02E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6DCC2D0-C5B0-4D58-A35C-B4092CCEA02E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6DCC2D0-C5B0-4D58-A35C-B4092CCEA02E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91902AE8-EBF2-451C-946B-BB68E63EC0C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91902AE8-EBF2-451C-946B-BB68E63EC0C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91902AE8-EBF2-451C-946B-BB68E63EC0C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91902AE8-EBF2-451C-946B-BB68E63EC0C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
