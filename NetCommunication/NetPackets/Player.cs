@@ -49,7 +49,7 @@ namespace NetPackets
 
         public void Serialize(NetDataWriter writer)
         {
-            writer.Put(Players.Length);
+            writer.Put((byte)Players.Length);
             foreach (var p in Players)
             {
                 p.Serialize(writer);
@@ -66,12 +66,16 @@ namespace NetPackets
         {
             Id = reader.GetByte();
             NickName = reader.GetString();
+
+            Console.WriteLine($"Get name {NickName}");
         }
 
         public void Serialize(NetDataWriter writer)
         {
             writer.Put(Id);
             writer.Put(NickName);
+
+            Console.WriteLine($"Put name {NickName}");
         }
     }
 }

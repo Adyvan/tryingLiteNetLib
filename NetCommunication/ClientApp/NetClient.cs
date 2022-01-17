@@ -38,6 +38,7 @@ namespace ClientApp
             CurrentPlayer = new PlayerData() { NickName = playerName, };
             listener = new EventBasedNetListener();
             client = new NetManager(listener);
+            client.DisconnectTimeout = int.MaxValue;
             client.Start();
 
             server = client.Connect(Address, Port, ConnectionKey);
@@ -50,13 +51,6 @@ namespace ClientApp
             listener.NetworkReceiveUnconnectedEvent += Listener_NetworkReceiveUnconnectedEvent;
             listener.DeliveryEvent += Listener_DeliveryEvent;
             listener.NtpResponseEvent += Listener_NtpResponseEvent;
-
-            MonitoringPlayers();
-
-            netPacketProcessor.SendNetSerializable(
-                server, 
-                new PlayerReq { NickName = playerName }, 
-                DeliveryMethod.ReliableUnordered);
         }
 
         public void Update()
@@ -117,6 +111,13 @@ namespace ClientApp
         private void Listener_PeerConnectedEvent(NetPeer peer)
         {
             Console.WriteLine($"PeerConnected {peer}");
+
+            MonitoringPlayers();
+
+            netPacketProcessor.SendNetSerializable(
+                server,
+                new PlayerReq { NickName = CurrentPlayer.NickName },
+                DeliveryMethod.ReliableUnordered);
         }
 
         private void Listener_NetworkLatencyUpdateEvent(NetPeer peer, int latency)

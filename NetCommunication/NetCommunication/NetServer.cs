@@ -40,6 +40,8 @@ namespace ServerApp
             listener = new EventBasedNetListener();
             server = new NetManager(listener);
 
+            server.DisconnectTimeout = int.MaxValue;
+
             server.Start(Port);
 
             listener.ConnectionRequestEvent += request =>

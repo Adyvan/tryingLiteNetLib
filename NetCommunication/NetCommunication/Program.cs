@@ -20,14 +20,24 @@ namespace ServerApp
 
             Console.WriteLine($"server start port:{port}");
 
-            while (true)
+            try
             {
-                netServer.ServerTick();
-                Thread.Sleep(15);
+                while (true)
+                {
+                    netServer.ServerTick();
+                    Thread.Sleep(15);
+                }
             }
-            netServer.Stop();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                Console.WriteLine(ex.StackTrace);
+            }
+            finally
+            {
+                netServer.Stop();
+            }
         }
-
     }
 }
 
