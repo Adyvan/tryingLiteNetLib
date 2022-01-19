@@ -1,6 +1,7 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using NetPackets;
+using NetPackets.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace ClientApp
         public readonly int Port;
         public readonly string Address;
 
-        public readonly NetPacketProcessor netPacketProcessor;
+        public readonly ByteNetPacketProcessor netPacketProcessor;
 
         public bool NeedToReconect { get; set; }
 
@@ -31,7 +32,8 @@ namespace ClientApp
         public NetClient(string address, int port, string connectionKey)
         {
             Port = port;
-            netPacketProcessor = new NetPacketProcessor();
+            netPacketProcessor = new ByteNetPacketProcessor();
+            netPacketProcessor.RegisterAllNetSerializable();
             ConnectionKey = connectionKey;
             Address = address;
         }
@@ -69,7 +71,7 @@ namespace ClientApp
             client.Stop();
         }
 
-        public void SendMessage(INetSerializable message)
+        public void SendMessage<T>(T message) where T : INetSerializable
         {
             netPacketProcessor.SendNetSerializable(server, message, DeliveryMethod.ReliableOrdered);
         }

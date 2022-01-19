@@ -1,6 +1,7 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
 using NetPackets;
+using NetPackets.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace ServerApp
         public readonly string ConnectionKey;
         public readonly int Port;
 
-        public readonly NetPacketProcessor netPacketProcessor;
+        public readonly ByteNetPacketProcessor netPacketProcessor;
 
         private EventBasedNetListener listener;
         private NetManager server;
@@ -30,7 +31,8 @@ namespace ServerApp
         public NetServer(int port, string connectionKey)
         {
             Port = port;
-            netPacketProcessor = new NetPacketProcessor();
+            netPacketProcessor = new ByteNetPacketProcessor();
+            netPacketProcessor.RegisterAllNetSerializable();
             ConnectionKey = connectionKey;
         }
 
@@ -80,7 +82,7 @@ namespace ServerApp
             netPacketProcessor.SendNetSerializable(target.Peer, message, DeliveryMethod.ReliableOrdered);
         }
 
-        public void SendMessageToAll(INetSerializable message)
+        public void SendMessageToAll<T>(T message) where T : INetSerializable
         {
             netPacketProcessor.SendNetSerializable(server, message, DeliveryMethod.ReliableOrdered);
         }

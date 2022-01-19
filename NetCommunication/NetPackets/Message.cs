@@ -10,13 +10,11 @@ namespace NetPackets
         public void Serialize(NetDataWriter writer)
         {
             writer.Put(Message);
-            Console.WriteLine($"Put {Message}");
         }
 
         public void Deserialize(NetDataReader reader)
         {
             Message = reader.GetString();
-            Console.WriteLine($"Get {Message}");
         }
     }
 
@@ -30,18 +28,12 @@ namespace NetPackets
         {
             writer.Put(Message);
             writer.Put(From);
-
-            Console.WriteLine($"Put {Message}");
-            Console.WriteLine($"Put {From}");
         }
 
         public void Deserialize(NetDataReader reader)
         {
             Message = reader.GetString();
             From = reader.GetString();
-
-            Console.WriteLine($"Get {Message}");
-            Console.WriteLine($"Get {From}");
         }
     }
 }
