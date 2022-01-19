@@ -1,6 +1,7 @@
 ﻿
 using LiteNetLib;
 using LiteNetLib.Utils;
+using NetPackets;
 
 namespace ClientApp
 {
@@ -22,14 +23,29 @@ namespace ClientApp
             PlayerName = Console.ReadLine();
 
             var client = new NetClient(Server, Port, "SomeConnectionKey");
+
+            client.SubscribeNetSerializable<MessageNotification>(mess =>
+            {
+                Console.WriteLine($"{mess.From}: {mess.Message}");
+            });
+
             client.Start(PlayerName);
 
+            
+
             string mess = null;
+
+            var messageReq = new MessageReq();
 
             Thread thread = new Thread(() => {
                 while (!"quit".Equals(mess))
                 {
                     mess = Console.ReadLine();
+                    if (!"quit".Equals(mess))
+                    {
+                        messageReq.Message = mess;
+                        client.SendMessage(messageReq);
+                    }
                 }
             });
 

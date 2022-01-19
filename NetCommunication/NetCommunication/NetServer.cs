@@ -104,7 +104,7 @@ namespace ServerApp
             });
         }
 
-        private Player GetPlayerData(NetPeer netPeer)
+        public Player GetPlayerData(NetPeer netPeer)
         {
             Player userData = players.FirstOrDefault(x => x.Peer == netPeer);
 

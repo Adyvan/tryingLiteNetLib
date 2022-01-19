@@ -19,6 +19,9 @@ namespace ClientApp
 
         public readonly NetPacketProcessor netPacketProcessor;
 
+        public bool NeedToReconect { get; set; }
+
+        private bool isRunning;
         private EventBasedNetListener listener;
         private NetManager client;
         private NetPeer server;
@@ -51,6 +54,8 @@ namespace ClientApp
             listener.NetworkReceiveUnconnectedEvent += Listener_NetworkReceiveUnconnectedEvent;
             listener.DeliveryEvent += Listener_DeliveryEvent;
             listener.NtpResponseEvent += Listener_NtpResponseEvent;
+
+            isRunning = true;
         }
 
         public void Update()
@@ -60,12 +65,18 @@ namespace ClientApp
 
         public void Stop()
         {
+            isRunning = false;
             client.Stop();
         }
 
         public void SendMessage(INetSerializable message)
         {
             netPacketProcessor.SendNetSerializable(server, message, DeliveryMethod.ReliableOrdered);
+        }
+
+        public void SubscribeNetSerializable<T>(Action<T> action) where T : INetSerializable, new()
+        {
+            netPacketProcessor.SubscribeNetSerializable<T>(action);
         }
 
         private void MonitoringPlayers()
@@ -81,6 +92,19 @@ namespace ClientApp
                 players = res.Players;
                 Console.WriteLine(string.Join(',', players.Select(x => $"{{{x.Id},{x.NickName}}}")));
             });
+        }
+
+        private void TryToReconnect()
+        {
+            if (server.ConnectionState == ConnectionState.Disconnected)
+            {
+                Console.WriteLine("TryToReconnect");
+                server = client.Connect(Address, Port, ConnectionKey);
+            }
+            else
+            {
+                Console.WriteLine("NotReconnect");
+            }
         }
 
         #region Subscribes
@@ -122,7 +146,7 @@ namespace ClientApp
 
         private void Listener_NetworkLatencyUpdateEvent(NetPeer peer, int latency)
         {
-            Console.WriteLine($"LatencyUpdate {peer}: ({latency} ms)");
+            //Console.WriteLine($"LatencyUpdate {peer}: ({latency} ms)");
         }
 
         private void Listener_NetworkReceiveEvent(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
@@ -133,6 +157,7 @@ namespace ClientApp
         private void Listener_PeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectInfo)
         {
             Console.WriteLine($"Disconnected {peer}");
+            TryToReconnect();
         }
 
         #endregion

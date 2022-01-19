@@ -16,6 +16,17 @@ namespace ServerApp
             int port = OperatingSystem.IsWindows() ? Port_Test : Port_Docker;
 
             NetServer netServer = new NetServer(port, "SomeConnectionKey");
+
+            MessageNotification messageNotification = new MessageNotification();
+            netServer.netPacketProcessor.SubscribeNetSerializable<MessageReq, NetPeer>((mess, peer) =>
+            {
+                var player = netServer.GetPlayerData(peer);
+                Console.WriteLine($"Mess: {player.NickName}: {mess.Message}");
+                messageNotification.Message = mess.Message;
+                messageNotification.From = player.NickName;
+                netServer.SendMessageToAll(messageNotification);
+            });
+
             netServer.Start();
 
             Console.WriteLine($"server start port:{port}");
@@ -27,11 +38,6 @@ namespace ServerApp
                     netServer.ServerTick();
                     Thread.Sleep(15);
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                Console.WriteLine(ex.StackTrace);
             }
             finally
             {
