@@ -7,8 +7,8 @@ namespace ClientApp
 {
     public class App
     {
-        //const string Server = "localhost";
-        const string Server = "207.154.230.172";//DO
+        const string Server = "localhost";
+        // const string Server = "207.154.230.172";//DO
 
         const int Port = 9050; //Docker and DO
         //const int Port = 9051; // Local run

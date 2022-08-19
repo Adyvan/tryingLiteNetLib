@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using LiteNetLib;
 using LiteNetLib.Utils;
 
@@ -8,7 +10,7 @@ namespace NetPackets.Utils
     {    
         protected delegate void SubscribeDelegate(NetDataReader reader, object userData);
         private readonly NetSerializer _netSerializer;
-        private readonly Dictionary<byte, SubscribeDelegate> _callbacks = new Dictionary<byte, SubscribeDelegate>();
+        private readonly System.Collections.Generic.Dictionary<byte, SubscribeDelegate> _callbacks = new Dictionary<byte, SubscribeDelegate>();
         private readonly NetDataWriter _netDataWriter = new NetDataWriter();
         private readonly Dictionary<Type, byte> _typesIds = new Dictionary<Type, byte>();
         private byte _idTypeCounter;
@@ -36,8 +38,9 @@ namespace NetPackets.Utils
             }
             var nextId = _idTypeCounter;
             nextId++;
-            if (_typesIds.TryAdd(type, nextId))
+            if (!_typesIds.ContainsKey(type))
             {
+                _typesIds.Add(type, nextId);
                 _idTypeCounter = nextId;
             }
         }
